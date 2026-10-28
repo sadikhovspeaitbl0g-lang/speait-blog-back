@@ -20,7 +20,7 @@ const limiter = rateLimit({
 const corsOptions = {
   origin: [
     "http://localhost:3000",
-    "https://speait-blog-front.vercel.app",
+    "https://speait-blog-front-xi.vercel.app",
   ],
 };
 
