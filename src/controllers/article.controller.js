@@ -2,38 +2,49 @@ import Article from "../models/articles.model.js"
 
 
 export const getArticlesPaginated = async (req, res) => {
-    const { page = 1, pageSize = 10, search = "" } = req.query;
+    const page = Math.max(
+        1,
+        parseInt(String(req.query.page ?? "1"), 10) || 1
+    );
 
-    const searchParsed = String(search ?? "").trim().toLowerCase();
+    const pageSize = Math.max(
+        1,
+        parseInt(String(req.query.pageSize ?? "10"), 10) || 10
+    );
+
+    const search = String(req.query.search ?? "").trim().toLowerCase();
 
     try {
-        const totalArticles = await Article.find({});
-
-        const totalPages = Math.ceil(totalArticles.length / pageSize);
-        const startIndex = (page - 1) * pageSize;
-        const endIndex = startIndex + pageSize;
-
-        const articles = await Article.find({});
+        const articles = await Article.find({})
+            .sort({ createdAt: -1, _id: -1 });
 
         const filteredArticles = articles.filter((article) =>
-            (article.title ?? "").toLowerCase().includes(searchParsed)
+            (article.title ?? "").toLowerCase().includes(search)
         );
+
+        const totalArticles = filteredArticles.length;
+        const totalPages = Math.ceil(totalArticles / pageSize);
+        const startIndex = (page - 1) * pageSize;
 
         return res.status(200).json({
             isSuccess: true,
-            data: filteredArticles.slice(startIndex, endIndex),
+            data: filteredArticles.slice(
+                startIndex,
+                startIndex + pageSize
+            ),
             page,
             pageSize,
             totalArticles,
-            totalPages
+            totalPages,
         });
     } catch (error) {
+        console.error(error);
+
         return res.status(500).json({
             isSuccess: false,
-            message: "Error on the server"
+            message: "Error on the server",
         });
     }
-
 };
 
 
