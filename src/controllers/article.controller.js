@@ -1,6 +1,5 @@
 import Article from "../models/articles.model.js"
 
-
 export const getArticlesPaginated = async (req, res) => {
     const page = Math.max(
         1,
